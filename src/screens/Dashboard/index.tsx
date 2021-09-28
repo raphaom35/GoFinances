@@ -19,6 +19,7 @@ import {
     Transitions,
     Title,
     TransitionList,
+    LogoutButton
 } from './styles'
 
 export interface DataListProps extends TransitionsCardProps{
@@ -74,7 +75,9 @@ export function Dashboard(){
                         <UserName>Raphael</UserName>
                     </User>
                 </UserInfo> 
-                <Icon name="power" />
+                <LogoutButton onPress={()=>{}}>
+                    <Icon name="power" />
+                </LogoutButton>
             </UserWrapper> 
            
            </Header>

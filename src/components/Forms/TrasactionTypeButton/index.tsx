@@ -1,15 +1,16 @@
 import React from 'react';
-import {TouchableOpacityProps} from 'react-native';
+import {RectButtonProps} from 'react-native-gesture-handler';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { Transition } from 'react-native-reanimated';
 
 import {
     Container,
     Icon,
-    Title
+    Title,
+    Button
 } from './styles'
 
-interface Props extends TouchableOpacityProps{
+interface Props extends RectButtonProps{
     title: string;
     type:'up'|'down';
     isActive: boolean;
@@ -22,9 +23,11 @@ const icons ={
 
 export function TrasactionTypeButton({title,type,isActive,...rest}:Props){
     return(
-        <Container {...rest}  type={type} isActive={isActive}>
+        <Container  type={type} isActive={isActive}>
+            <Button {...rest} >
             <Icon type={type} name={icons[type]}/>
             <Title>{title}</Title>
+            </Button>
         </Container>
     )
 }
