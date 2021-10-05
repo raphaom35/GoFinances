@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useState,useEffect} from 'react';
 import {Modal,
         TouchableWithoutFeedback,
         Keyboard,
@@ -8,11 +8,11 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from "yup";
 import { getBottomSpace } from 'react-native-iphone-x-helper';
-
-
+import {useNavigation} from '@react-navigation/native'
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import { Button } from '../../components/Forms/Button';
 import { TrasactionTypeButton } from '../../components/Forms/TrasactionTypeButton';
-
+import uuid from 'react-native-uuid';
 
 import {
     Container,
@@ -50,13 +50,16 @@ export function Register(){
         key: 'category',
         name: 'Categoria',
     });
+    const navigation = useNavigation();
 
     const {
         control,
         handleSubmit,
+        reset,
         formState:{errors}
     } =useForm({
         resolver:yupResolver(schema)
+        
     });
 
     function handleTrasactionTypeSelect(type:'up'|'down'){
@@ -71,7 +74,8 @@ export function Register(){
 
 
 
-    function handleRegister(form:FormData){
+   async function handleRegister(form:FormData){
+    const datakey = '@gofinances:transations';
         if(!trasactionType)
         return Alert.alert('Selecione o tipo da transação');
   
@@ -79,17 +83,39 @@ export function Register(){
         return Alert.alert('Selecione a categoria');
 
 
-        const data={
+        const newTransaction ={
+            id:String(uuid.v4()),
             name:form.name,
             amount:form.amount,
            trasactionType,
-            category:category.key
+            category:category.key,
+            date:new Date()
         }
 
         //console.log(category.key)
-        console.log(data)
-    }
+        //console.log(data)
+        try {
+            const data=  await AsyncStorage.getItem(datakey);
+            const currentdata =data?JSON.parse(data):[];
 
+            const dataFormatted =[
+                ...currentdata,newTransaction
+            ]
+
+            await AsyncStorage.setItem(datakey,JSON.stringify(dataFormatted));
+            reset();
+            setTrasactionType('');
+            setCategory({
+                key: 'category',
+                name: 'Categoria',
+            });
+            navigation.navigate('Listagem')
+        } catch (error) {
+            console.log(error);
+            Alert.alert("Não foi posivel salvar")
+        }
+    }
+ 
     return(
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Container>

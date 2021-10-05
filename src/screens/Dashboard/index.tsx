@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState,useEffect } from 'react';
 import {StyleSheet} from 'react-native';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { Transition } from 'react-native-reanimated';
 import { HighlightCard } from '../../components/HighlightCard';
 import { TransitionsCards,TransitionsCardProps } from '../../components/TransationCard';
-
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { compareAsc, format } from 'date-fns'
+import RNDateFormat from 'react-native-date-format';
 import {
     Container,
     Header,
@@ -26,44 +28,44 @@ export interface DataListProps extends TransitionsCardProps{
     id:string;
 }
 
-const data:DataListProps =[
-    {
-    id:'1',
-    type:'positive',
-    title:"Desenvolvimento de site",
-    amount:"R$ 12.000,00",
-    category:{
-        name:"Vendas",
-        icon:"dollar-sign"
-    },
-    date:"13/04/2020"
-    },
-    {
-        id:'2',
-        type:'negative',
-        title:"Hamburgueria Pizzy",
-        amount:"R$ 59,00",
-        category:{
-            name:"Alimentação",
-            icon:"coffee"
-        },
-        date:"13/04/2020"
-    },
-    {
-        id:'3',
-        type:'negative',
-        title:"Aluguel do apartamento",
-        amount:"R$ 1.200,00",
-        category:{
-            name:"Casa",
-            icon:"shopping-bag"
-        },
-        date:"27/03/2020"
-    },
 
-];
 
 export function Dashboard(){
+    const [data,setData] = useState<DataListProps[]>([]);
+    const datakey = '@gofinances:transations';
+    async function loadTransations(){
+        const response=  await AsyncStorage.getItem(datakey);
+        console.log(response)
+        const transations = response ? JSON.parse(response):[];
+        const transationsFormatted:DataListProps[] = transations.map(
+            (item:DataListProps) =>{
+               const amount ="R$"+Number(item.amount);
+               var data = new Date(item.date);
+               const date = format(data, 'dd/MM/yyyy');
+               return{
+                   id:item.id,
+                   name:item.name,
+                   amount,
+                   type:item.type,
+                   category:item.category,
+                   date
+
+               }
+            }
+        );
+        //console.log(JSON.parse(data!))
+        setData(transationsFormatted)
+
+       
+      }
+    useEffect(()=>{
+        //async function removeAll(){
+       //    await AsyncStorage.removeItem(datakey);
+       // }
+       // removeAll();
+        loadTransations();
+    },[])
+
     return(
         <Container>
            <Header>
