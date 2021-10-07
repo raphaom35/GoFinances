@@ -62,7 +62,7 @@ export function Register(){
         
     });
 
-    function handleTrasactionTypeSelect(type:'up'|'down'){
+    function handleTrasactionTypeSelect(type:'positive'|'negative'){
         setTrasactionType(type);
     }
     function handleCloseSelectCategoryModal(){
@@ -87,7 +87,7 @@ export function Register(){
             id:String(uuid.v4()),
             name:form.name,
             amount:form.amount,
-           trasactionType,
+            type: trasactionType,
             category:category.key,
             date:new Date()
         }
@@ -146,14 +146,14 @@ export function Register(){
                 <TrasactionTypeButton 
                     title="Income" 
                     type="up"
-                    onPress={()=>handleTrasactionTypeSelect('up')} 
-                    isActive={trasactionType==='up'}
+                    onPress={()=>handleTrasactionTypeSelect('positive')} 
+                    isActive={trasactionType==='positive'}
                 />
                 <TrasactionTypeButton 
                     title="Outcome" 
                     type="down" 
-                    onPress={()=>handleTrasactionTypeSelect('down')}
-                    isActive={trasactionType==='down'}
+                    onPress={()=>handleTrasactionTypeSelect('negative')}
+                    isActive={trasactionType==='negative'}
                 />
                 </TrasactionType>
                 <CategorySelectButton 

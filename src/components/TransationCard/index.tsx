@@ -1,4 +1,5 @@
 import React from 'react';
+import { categories } from '../../utils/categories';
 
 import { 
     Container,
@@ -20,7 +21,7 @@ export interface TransitionsCardProps {
      type:'positive' | 'negative';
      name: string;
      amount:string;
-     category:Category;
+     category:string;
      date:string;
 }
 
@@ -29,6 +30,9 @@ interface Props {
 }
 
 export function TransitionsCards({data}:Props){
+    const [category] = categories.filter(
+        item=>item.key===data.category
+    );
     return (
         <Container>
             <Title>
@@ -41,9 +45,9 @@ export function TransitionsCards({data}:Props){
 
             <Footer>
                 <Category>
-                    <Icon name={data.category.icon}/>
+                    <Icon name={category.icon}/>
                     <CategoryName>
-                        {data.category.name}
+                        {category.name}
                     </CategoryName>
                 </Category>
 
