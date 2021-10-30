@@ -34,6 +34,7 @@ export interface DataListProps extends TransitionsCardProps{
 }
 interface HighlightProps {
     amount: string;
+    lastTransaction :string;
   }
   
   interface HighlightData {
@@ -48,6 +49,15 @@ export function Dashboard(){
     const theme= useTheme();
     const [highlightData, setHighlightData] = useState<HighlightData>({} as HighlightData);
 
+    function getLastTransitionDate(
+        collection: DataListProps[],
+        type: 'positive' | 'negative'
+    ){
+        const lastTransaction = new Date(Math.max.apply(Math,collection.
+            filter(transaction => transaction.type==type).
+            map(transaction =>new Date(transaction.date).getTime()))) ; 
+        return `${lastTransaction.getDate()} de ${lastTransaction.toLocaleString('pt-BR',{month:'long'})}`;
+    }
 
     function convertToReal(number, options = {}) {
         const { moneySign = true } = options;
@@ -92,13 +102,12 @@ export function Dashboard(){
           }else {
             expensiveTotal += Number(item.amount);
           }
-          console.log(convertToReal(Number(item.amount),currency));
                const amount =  convertToReal(Number(item.amount),currency);
                var data = new Date(item.date);
                const date = format(data, 'dd/MM/yyyy');
                
                
-            console.log(item)
+
                return{
                    id:item.id,
                    name:item.name,
@@ -113,19 +122,27 @@ export function Dashboard(){
        
         //console.log(JSON.parse(data!))
         setTrasations(transactionsFormatted)
+        const lastTransactionEntries = getLastTransitionDate(transations,'positive');
+        const lastTransactionExpensives = getLastTransitionDate(transations,'negative');
+        const Totalnterval = `01 a ${lastTransactionExpensives}`
+
+
         const total = entriesTotal - expensiveTotal;
         setHighlightData({
             entries:{
                 amount:convertToReal(entriesTotal,currency),
+                lastTransaction:`Ultima entrada dia ${lastTransactionEntries}`
                //amount:'',
             },
             expensives:{
                 amount:convertToReal(expensiveTotal,currency),
                 //amount:'',
+                lastTransaction:`Ultima saida dia ${lastTransactionExpensives}`
             },
             total: {
                 amount:convertToReal(total,currency),
               // amount:'',
+                lastTransaction:Totalnterval
               }
 
         });
@@ -176,19 +193,19 @@ export function Dashboard(){
                     title="Entradas"
                     amount={highlightData.entries.amount}
                     type="up"
-                    lastTransaction="Última entrada dia 13 de abril"
+                    lastTransaction={highlightData.entries.lastTransaction}
                     
                 />
                 <HighlightCard 
                     title="Saídas"
                     amount={highlightData.expensives.amount}
-                    lastTransaction="Última saída dia 03 de abril"
+                    lastTransaction={highlightData.expensives.lastTransaction}
                     type="down"
                 />
                 <HighlightCard
                     title="Total"
                     amount={highlightData.total.amount}
-                    lastTransaction="01 à 16 de abril"
+                    lastTransaction={highlightData.total.lastTransaction}
                     type="total"
                 />
             </HighlightCards> 
