@@ -92,6 +92,7 @@ export function Dashboard(){
         
         const currency = "BRL";
         const transations = response ? JSON.parse(response):[];
+        if(transations.length>0){
         const transactionsFormatted: DataListProps[] = transations
         .map((item: DataListProps) => {
 
@@ -146,13 +147,33 @@ export function Dashboard(){
               }
 
         });
+    }else{
+        setHighlightData({
+            entries:{
+                amount:`R$ 0,00`,
+                lastTransaction:``
+               //amount:'',
+            },
+            expensives:{
+                amount:`R$ 0,00`,
+                //amount:'',
+                lastTransaction:``
+            },
+            total: {
+                amount:`R$ 0,00`,
+              // amount:'',
+                lastTransaction:``
+              }}
+        );
+    }
         setIsloading(false)
        
       }
     useEffect(()=>{
+
         loadTransations();
-       // const datakey = '@gofinances:transations';
-       //  AsyncStorage.removeItem(datakey);
+        //const datakey = '@gofinances:transations';
+         //AsyncStorage.removeItem(datakey);
     },[])
 
     useFocusEffect(useCallback(() => {
