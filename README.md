@@ -13,7 +13,7 @@ Help organize your finances
 </p>
 
 <div align="center">
-<img src="/gofinances.gif" width="300" height=400 />
+<img src="/gofinances.gif" width="300" height=500 />
 
 </div>
 
