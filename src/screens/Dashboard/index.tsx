@@ -11,6 +11,7 @@ import  {useFocusEffect} from '@react-navigation/native'
 import RNDateFormat from 'react-native-date-format';
 import {useTheme}from 'styled-components';
 import CurrencyFormatter from "react-native-currency-format";
+import {userAuth} from '../../hooks/auth';
 import {
     Container,
     Header,
@@ -47,14 +48,18 @@ export function Dashboard(){
     const [isLoading,setIsloading]=useState(true);
     const [trasations,setTrasations] = useState<DataListProps[]>([]);
     const theme= useTheme();
+    const {signOut,user}= userAuth();
     const [highlightData, setHighlightData] = useState<HighlightData>({} as HighlightData);
 
     function getLastTransitionDate(
         collection: DataListProps[],
         type: 'positive' | 'negative'
     ){
-        const lastTransaction = new Date(Math.max.apply(Math,collection.
-            filter(transaction => transaction.type==type).
+        const collectionFiltered = collection.filter(transaction => transaction.type==type);
+        if(collectionFiltered.length===0){
+            return 0;
+        }
+        const lastTransaction = new Date(Math.max.apply(Math,collectionFiltered.
             map(transaction =>new Date(transaction.date).getTime()))) ; 
         return `${lastTransaction.getDate()} de ${lastTransaction.toLocaleString('pt-BR',{month:'long'})}`;
     }
@@ -86,7 +91,7 @@ export function Dashboard(){
     async function loadTransations(){
         let entriesTotal = 0;
         let expensiveTotal = 0;
-        const datakey = '@gofinances:transations';
+        const datakey = `@gofinances:transations_user:${user.id}`;
         const response=  await AsyncStorage.getItem(datakey);
         //console.log(response)
         
@@ -125,23 +130,23 @@ export function Dashboard(){
         setTrasations(transactionsFormatted)
         const lastTransactionEntries = getLastTransitionDate(transations,'positive');
         const lastTransactionExpensives = getLastTransitionDate(transations,'negative');
-        const Totalnterval = `01 a ${lastTransactionExpensives}`
+        const Totalnterval = lastTransactionExpensives===0?'Não há transações':`01 a ${lastTransactionExpensives}`
 
 
         const total = entriesTotal - expensiveTotal;
         setHighlightData({
             entries:{
-                amount:convertToReal(entriesTotal,currency),
-                lastTransaction:`Ultima entrada dia ${lastTransactionEntries}`
+                amount:entriesTotal==0?`R$ 0,00`:convertToReal(entriesTotal,currency),
+                lastTransaction:lastTransactionEntries===0?'Não há transações':`Ultima entrada dia ${lastTransactionEntries}`
                //amount:'',
             },
             expensives:{
-                amount:convertToReal(expensiveTotal,currency),
+                amount:expensiveTotal==0?`R$ 0,00`:convertToReal(expensiveTotal,currency),
                 //amount:'',
-                lastTransaction:`Ultima saida dia ${lastTransactionExpensives}`
+                lastTransaction:lastTransactionExpensives===0?'Não há transações':`Ultima saida dia ${lastTransactionExpensives}`
             },
             total: {
-                amount:convertToReal(total,currency),
+                amount:total==0?`R$ 0,00`:convertToReal(total,currency),
               // amount:'',
                 lastTransaction:Totalnterval
               }
@@ -173,11 +178,12 @@ export function Dashboard(){
 
         loadTransations();
         //const datakey = '@gofinances:transations';
-         //AsyncStorage.removeItem(datakey);
+         //AsyncStorage.removeItem(`@gofinances:transations_user:${user.id}`);
     },[])
 
     useFocusEffect(useCallback(() => {
         loadTransations();
+       
     },[]));
 
     return(
@@ -197,13 +203,13 @@ export function Dashboard(){
            <Header>
             <UserWrapper>
              <UserInfo>
-                    <Photo source={{uri:'https://github.com/raphaom35.png'}}/>
+                    <Photo source={{uri:user.photo}}/>
                     <User>
                         <UserGreeting>Ola, </UserGreeting>
-                        <UserName>Raphael</UserName>
+                        <UserName>{user.name}</UserName>
                     </User>
                 </UserInfo> 
-                <LogoutButton onPress={()=>{}}>
+                <LogoutButton onPress={signOut}>
                     <Icon name="power" />
                 </LogoutButton>
             </UserWrapper> 

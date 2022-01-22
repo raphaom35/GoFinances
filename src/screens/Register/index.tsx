@@ -26,6 +26,7 @@ import {
 import { CategorySelectButton } from '../../components/Forms/CategorySelectButton';
 import { CategorySelect } from '../CategorySelect';
 import { InputForm } from '../../components/Forms/InputForm';
+import { userAuth } from '../../hooks/auth';
 
 interface FormData {
     name:string;
@@ -45,7 +46,7 @@ const schema =Yup.object().shape({
 export function Register(){
     const [trasactionType,setTrasactionType]= useState('');
     const [categoryModalOpen,setCategoryModalOpen]= useState(false);
-
+    const {user} =userAuth();
 
     const [category,setCategory]= useState({
         key: 'category',
@@ -76,7 +77,7 @@ export function Register(){
 
 
    async function handleRegister(form:FormData){
-    const datakey = '@gofinances:transations';
+    const datakey = `@gofinances:transations_user:${user.id}`;
         if(!trasactionType)
         return Alert.alert('Selecione o tipo da transação');
   
